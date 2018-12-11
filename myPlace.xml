@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <About>
+    <Summary>Cliff walking mission based on Sutton and Barto.</Summary>
+  </About>
+  
+  <ModSettings>
+    <MsPerTick>1</MsPerTick>
+  </ModSettings>
+
+  <ServerSection>
+      <ServerInitialConditions>
+            <Time>
+                <StartTime>6000</StartTime>
+                <AllowPassageOfTime>false</AllowPassageOfTime>
+            </Time>
+            <Weather>clear</Weather>
+            <AllowSpawning>false</AllowSpawning>
+      </ServerInitialConditions>
+    <ServerHandlers>
+      <FlatWorldGenerator generatorString="4;8,3*4,3;13;,biome_1"/>
+      <DrawingDecorator>
+        <!-- coordinates for cuboid are inclusive -->
+         <DrawCuboid type="air" x1="-24" x2="24" y1="4" y2="40" z1="-20" z2="20" />
+               <!-- Draw world -->
+               <DrawBlock type="spruce_fence" x="1" y="4" z="4" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="5" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="6" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="1" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="2" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="3" />        <!--  left side of fence -->
+               <DrawBlock type="spruce_fence" x="1" y="4" z="4" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="6" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="7" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="8" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="9" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="10" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="11" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="12" />
+               
+               
+               <DrawBlock type="spruce_fence" x="-20" y="4" z="5" />
+               <DrawBlock type="spruce_fence" x="-20" y="4" z="5" />
+               <DrawBlock type="spruce_fence" x="-20" y="4" z="6" />
+               <DrawBlock type="spruce_fence" x="-20" y="4" z="1" />
+               <DrawBlock type="spruce_fence" x="-20" y="4" z="2" />
+               <DrawBlock type="spruce_fence" x="-20" y="4" z="3" />        <!--  right side of fence -->
+               <DrawBlock type="spruce_fence" x="-20" y="4" z="4" />
+               <DrawBlock type="spruce_fence" x="-20" y="4" z="6" />
+               <DrawBlock type="spruce_fence" x="-20" y="4" z="7" />
+               <DrawBlock type="spruce_fence" x="-20" y="4" z="8" />
+               <DrawBlock type="spruce_fence" x="-20" y="4" z="9" />
+               <DrawBlock type="spruce_fence" x="-20" y="4" z="10" />
+               <DrawBlock type="spruce_fence" x="-20" y="4" z="11" />
+               <DrawBlock type="spruce_fence" x="-20" y="4" z="12" />
+         
+               
+               <DrawBlock type="spruce_fence" x="0" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-1" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-2" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-3" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-4" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-5" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-6" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-7" y="4" z="0" />            <!-- Bottom fence  -->
+               <DrawBlock type="spruce_fence" x="-8" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-9" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-10" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-11" y="4" z="0" />
+                <DrawBlock type="spruce_fence" x="-12" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-13" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-14" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-15" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-16" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-17" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-18" y="4" z="0" />
+               <DrawBlock type="spruce_fence" x="-19" y="4" z="0" />
+                <DrawBlock type="spruce_fence" x="-20" y="4" z="0" />
+                
+                <DrawBlock type="spruce_fence" x="0" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-1" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-2" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-3" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-4" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-5" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-6" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-7" y="4" z="12" />            <!-- Top fence  -->
+               <DrawBlock type="spruce_fence" x="-8" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-9" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-10" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-11" y="4" z="12" />
+                <DrawBlock type="spruce_fence" x="-12" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-13" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-14" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-15" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-16" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-17" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-18" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-19" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-20" y="4" z="12" />
+               
+               
+        <DrawBlock x="-10"     y="3"  z="7" type="lapis_block" />                             <!-- top left of square -->
+        <DrawBlock   x="-9"   y="3"  z="7" type="lapis_block" />                           <!-- top middle of square -->
+        <DrawBlock   x="-8"   y="3"  z="7" type="lapis_block" />                           <!-- top right of square -->
+        <DrawBlock   x="-8"   y="3"  z="6" type="lapis_block" />                           <!-- right middle of square -->
+        <DrawBlock   x="-8"   y="3"  z="5" type="lapis_block" />                           <!-- bottom right --> 
+        <DrawBlock   x="-9"   y="3"  z="5" type="lapis_block" />                           <!-- bottom middle of square -->  
+        <DrawBlock   x="-10"   y="3"  z="5" type="lapis_block" />                           <!-- bottom left of square -->     
+        <DrawBlock   x="-10"   y="3"  z="6" type="lapis_block" />                           <!-- bottom left of square -->  
+        <DrawBlock   x="-8"   y="3"  z="6" type="lapis_block" />                           <!-- bottom left of square -->
+                     
+      </DrawingDecorator>
+      <ServerQuitFromTimeUp timeLimitMs="1000000"/>
+      <ServerQuitWhenAnyAgentFinishes/>
+    </ServerHandlers>
+  </ServerSection>
+
+  <AgentSection mode="Survival">
+    <Name>Tyler</Name>
+    <AgentStart>
+      <Placement x="-9.5" y="20.0" z="2.5" pitch="30" yaw="0"/>
+      <Inventory>
+      	<InventoryBlock slot="0" type="carpet" quantity="8" />
+      </Inventory>
+    </AgentStart>
+    <AgentHandlers>
+     <ObservationFromFullInventory flat="false"/>
+       <ObservationFromRay/>
+         <InventoryCommands/>
+      <ObservationFromFullStats/>
+      <VideoProducer want_depth="false">
+          <Width>640</Width>
+          <Height>480</Height>
+      </VideoProducer>
+      <DiscreteMovementCommands>
+          <ModifierList type="deny-list">
+            <command>strafe</command>
+          </ModifierList>
+      </DiscreteMovementCommands>
+      <RewardForTouchingBlockType>
+         <Block reward="-1.0" type="grass" behaviour="oncePerBlock"/> 
+         <Block reward="100.0" type="lapis_block" behaviour="oncePerBlock"/>  
+      </RewardForTouchingBlockType>
+      <RewardForSendingCommand reward="-1"/>
+      <AgentQuitFromTouchingBlockType>
+      <!--      <Block type="lava" /> -->
+          <Block type="lapis_block" />
+      </AgentQuitFromTouchingBlockType>
+    </AgentHandlers>
+  </AgentSection>
+
+</Mission>
