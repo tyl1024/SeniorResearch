@@ -7,24 +7,7 @@ from __future__ import print_function
 # including without limitation the rights to use, copy, modify, merge, publish, distribute,
 # sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in all copies or
-# substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
-# NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-# ------------------------------------------------------------------------------------------------
 
-# Tutorial sample #6: Discrete movement, rewards, and learning
-
-# The "Cliff Walking" example using Q-learning.
-# From pages 148-150 of:
-# Richard S. Sutton and Andrews G. Barto
-# Reinforcement Learning, An Introduction
-# MIT Press, 1998
 
 from future import standard_library
 standard_library.install_aliases()
@@ -49,22 +32,14 @@ import sys
 import time
 import malmoutils
 import numpy as np
+import random
 
+runningNegative = -1
+Qtable = [0,0,0,0,0]     #one state, 5 actions
+eTrace = [0,0,0,0,0]     #one state, 5 actions    how long ago did I do that action and state determines how much of
+                                                          #total reward
+y = np.array(Qtable)
 
-###############################################################################################################################
-#                                                    Neural Network                                                           #
-###############################################################################################################################
-
-# X = (hours studying, hours sleeping), y = score on test, xPredicted = 4 hours studying & 8 hours sleeping (input data for prediction)
-#X = np.array(([2, 9], [1, 5], [3, 6]), dtype=float)
-
-#y = np.array(([92],    [86],   [89]), dtype=float)
-#xPredicted = np.array(([4,8]), dtype=float)
-
-# scale units
-#X = X/np.amax(X, axis=0) # maximum of X array
-#xPredicted = xPredicted/np.amax(xPredicted, axis=0) # maximum of xPredicted (our input data for the prediction)
-#y = y/100 # max test score is 100
 
 
 class Neural_Network(object):
@@ -95,7 +70,33 @@ class Neural_Network(object):
     def saveWeights(self):
         np.savetxt("w1.txt", self.W1, fmt="%s")
         np.savetxt("w2.txt", self.W2, fmt="%s")
-
+        
+    def sigmoidPrime(self, s):
+    #derivative of sigmoid
+        return s * (1 - s)
+    
+    def backward(self, X, y, o):
+        # backward propgate through the network
+        self.o_error = y - o # error in output
+        self.o_delta = self.o_error*self.sigmoidPrime(o) # applying derivative of sigmoid to error
+    
+        self.z2_error = self.o_delta.dot(self.W2.T) # z2 error: how much our hidden layer weights contributed to output error
+        self.z2_delta = self.z2_error*self.sigmoidPrime(self.z2) # applying derivative of sigmoid to z2 error
+    
+        self.W1 += X.T.dot(self.z2_delta) # adjusting first set (input --> hidden) weights
+        self.W2 += self.z2.T.dot(self.o_delta) # adjusting second set (hidden --> output) weights
+        
+    def train (self, X, y):
+        o = self.forward(X)
+        #if global counter mod blah do backprop
+        self.backward(X, y, o) #y = qtable(expected)    o is NN action(actual)  x = input
+        
+    
+        
+################################################################################################################################
+        
+        
+        
 if sys.version_info[0] == 2:
     # Workaround for https://github.com/PythonCharmers/python-future/issues/262
     import Tkinter as tk
@@ -252,7 +253,7 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
   <AgentSection mode="Survival">
     <Name>Tyler</Name>
     <AgentStart>
-      <Placement x="-9.5" y="20.0" z="2.5" pitch="30" yaw="0"/>
+      <Placement x="-10.5" y="17.0" z="2.5" pitch="30" yaw="0"/>
       <Inventory>
           <InventoryBlock slot="0" type="carpet" quantity="8" />
       </Inventory>
@@ -338,6 +339,7 @@ print("Mission running ", end=' ')
 
 agent_host.sendCommand("pitch 0") #Start looking downward slowly
 time.sleep(1)                        #Wait a second until we are looking in roughly the right direction
+
 #agent_host.sendCommand("move .1")     #And start running...
 
 #botsActions = ["moveeast 1", "movesouth 1", "movewest 1", "movenorth 1", "use 1"]
@@ -345,90 +347,183 @@ time.sleep(1)                        #Wait a second until we are looking in roug
 #agent_host.sendCommand((randomAction))
 
 jumping = False
-NN = Neural_Network() #Remember only want to do this once
+NN = Neural_Network() #Remember only want to do this once...make sure this is outside loop to save weights
+
+
+
+
+
+
+def getAction():
+    reward = 0
+    if largestValue == o[0]:
+        action = "movenorth 1"
+        reward = -1
+        print(reward, " for moving north")
+        time.sleep(.1)
+        return action,reward
+    elif largestValue == o[1]:
+        action = "moveeast 1"
+        reward = -1
+        print(reward, " for moving east")
+        time.sleep(.1)
+        return action,reward
+    elif largestValue == o[2]:
+        action = "movesouth 1"
+        reward = -1 
+        print(reward, " for moving south")
+        time.sleep(.1)
+        return action,reward
+    elif largestValue == o[3]:
+        action = "movewest 1"
+        reward = -1
+        print(reward, " for moving west")
+        time.sleep(.1)
+        return action,reward
+    elif largestValue == o[4]:
+        if (botsEyes == ("lapis_block")):
+            action = "use 1" 
+            reward = 100
+            print(reward, " for placing on Lapis")
+            return action,reward
+    
+
+
 
 #NN = Neural_Network() #Remember only want to do this once
 # Loop until mission ends:
-while world_state.is_mission_running:
-    print(".", end="")
-    time.sleep(0.1)
-    world_state = agent_host.getWorldState()
-    for error in world_state.errors:
-        print("Error:",error.text)
-    if world_state.number_of_observations_since_last_state > 0:
-        msg = world_state.observations[-1].text
-        observations = json.loads(msg).get("LineOfSight")
-        #print(observations)
-        # 1. Determine block type
-        #2. Make a switch case based on block type that determines to set input nodes.
-        #    for example if block type is 'grass' then grass node is 1, and all other nodes 0.
-        # 3. Run forward propagation.
-        # 4. Look at output nodes figure out node with highest value
-        # 5. execute action based on output nodes
-        #botsEyes = observations.get("LineOfSight")
-        #print (botsEyes)
-        botsEyes = observations.get("type")
 
-        print(botsEyes)
-        if botsEyes == ("lapis_block"):
-            inputValues = [1, 0, 0, 0]
-            lapisNode = 1
-            grassNode = 0
-            fenceNode = 0
-            carpetNode = 0
-        elif botsEyes == ("grass"):
-            inputValues = [0, 1, 0, 0]
-            lapisNode = 0
-            grassNode = 1
-            fenceNode = 0
-            carpetNode = 0
-        elif botsEyes == ("spruce_fence"):
-            inputValues = [0, 0, 1, 0]
-            lapisNode = 0
-            grassNode = 0
-            fenceNode = 1
-            carpetNode = 0
-        elif botsEyes == ("carpet"):
-            inputValues = [0, 0, 0, 1]
-            lapisNode = 0
-            grassNode = 0
-            fenceNode = 0
-            carpetNode = 1
-        else:
-            #inputValues = [0, 0, 0, 0]
-            lapisNode = 0
-            grassNode = 0
-            fenceNode = 0 
-            carpetNode = 0
+#loop through mission
+for i in range(100):
+    while world_state.is_mission_running:   #may have to restart mission. look into it
+        print(".", end="")
+        time.sleep(0.1)
+        world_state = agent_host.getWorldState()
+        for error in world_state.errors:
+            print("Error:",error.text)
+        if world_state.number_of_observations_since_last_state > 0:
+            msg = world_state.observations[-1].text
+            observations = json.loads(msg).get("LineOfSight")
+            #print(observations)
+            # 1. Determine block type
+            #2. Make a switch case based on block type that determines to set input nodes.
+            #    for example if block type is 'grass' then grass node is 1, and all other nodes 0.
+            # 3. Run forward propagation.
+            # 4. Look at output nodes figure out node with highest value
+            # 5. execute action based on output nodes
+            #botsEyes = observations.get("LineOfSight")
+            #print (botsEyes)
+            botsEyes = observations.get("type")
+    
+            print('\n',botsEyes)
+            if botsEyes == ("lapis_block"):
+                inputValues = [1, 0, 0, 0]
+                lapisNode = 1
+                grassNode = 0
+                fenceNode = 0
+                carpetNode = 0
+            elif botsEyes == ("grass"):
+                inputValues = [0, 1, 0, 0]
+                lapisNode = 0
+                grassNode = 1
+                fenceNode = 0
+                carpetNode = 0
+            elif botsEyes == ("spruce_fence"):
+                inputValues = [0, 0, 1, 0]
+                lapisNode = 0
+                grassNode = 0
+                fenceNode = 1
+                carpetNode = 0
+            elif botsEyes == ("carpet"):
+                inputValues = [0, 0, 0, 1]
+                lapisNode = 0
+                grassNode = 0
+                fenceNode = 0
+                carpetNode = 1
+            else:
+                inputValues = [0, 0, 0, 0]
+                lapisNode = 0
+                grassNode = 0
+                fenceNode = 0 
+                carpetNode = 0
+                
+                
+            X = np.array((inputValues))
             
+            #print ("Actual Output: \n" + str(y))
+            #print ("Predicted Output: \n" + str(NN.forward(X)))
+            #print ("Loss: \n" + str(np.mean(np.square(y - NN.forward(X))))) # mean sum squared loss
+            o = NN.forward(X)
             
-        X = np.array((inputValues))
-        #print ("Actual Output: \n" + str(y))
-        #print ("Predicted Output: \n" + str(NN.forward(X)))
-        #print ("Loss: \n" + str(np.mean(np.square(y - NN.forward(X))))) # mean sum squared loss
-        o = NN.forward(X)
-        print ("Actual Output: \n" + str(o))
-        largestValue = max((o))
-        print("Highest Value:" , largestValue)
-        if largestValue == o[0]:
-                agent_host.sendCommand("movenorth 1")
-                time.sleep(.1)
-        elif largestValue == o[1]:
-                agent_host.sendCommand("moveeast 1")
-                time.sleep(.1)
-        elif largestValue == o[2]:
-                agent_host.sendCommand("movesouth 1")
-                time.sleep(.1)
-        elif largestValue == o[3]:
-                agent_host.sendCommand("movewest 1")
-                time.sleep(.1)
-        else: 
-                agent_host.sendCommand("use 1") 
-                time.sleep(.1)  
-    time.sleep(0.5) # (let the Mod reset)
+                   
+            
+            print ("Actual Output: \n" + str(o))
+            largestValue = max((o))
+            print("Highest Value:" , largestValue)
+            
+            myaction,myreward = getAction()
+            agent_host.sendCommand(myaction)   #send bot actions from getAction method
+            print("Action Chosen is: ",myaction)           
+    
+            print("Current Reward: ", myreward)
+            
+            y = 1.0
+            lamd = .5
+            learningRate = .5
+            
+            #Choose action from a1 derived from s using policy from Q'   
+            
+            sigma = myreward
+            
+                #eTrace = eTrace + 1
+            if myaction == "movenorth 1":  #move north
+                eTrace[0] += 1
+            elif myaction == "moveeast 1": #east
+                eTrace[1] += 1
+            elif myaction == "movesouth 1":  #south
+                eTrace[2] += 1
+            elif myaction == "movewest 1":  #west
+                eTrace[3] += 1
+            elif myaction == "place 1":  #place
+                eTrace[4] += 1
+            
+            #For all s,a:
+            #Update Qtable
+            #Update eTrace 
+                    
+            for i in range(5):
+                Qtable[i] = Qtable[i] + learningRate * myreward * eTrace[i]
+                eTrace[i] = y * lamd * eTrace[i]
+                
+            #if 10 actions
+              #then backproop once based on Qtable
+                #np.arrays(Qtable)
+                # 0 = backprop
+                #y = np.array(Qtable)
+            
+                b = NN.backward(X, y, o)
+  
+            print ("Backprop: \n" + str(b))
+                
+            
+#result = NN.train(X,y)        
+print("QTable:", Qtable)
+print("eTrace:", eTrace)
+#print("LOL:",result)
+        
+        
+        
+                        
+time.sleep(.1)  
+time.sleep(0.5) # (let the Mod reset)
+
           
              
 print()
 print("Mission ended")
 # Mission has ended.
 #print ("Actual Output: \n" + str(y))
+
+
+        
+
