@@ -10,6 +10,8 @@ from __future__ import print_function
 
 
 from future import standard_library
+from array import array
+from numpy.distutils.fcompiler import none
 standard_library.install_aliases()
 from builtins import range
 from builtins import object
@@ -34,13 +36,10 @@ import malmoutils
 import numpy as np
 import random
 
-runningNegative = -1
+
 Qtable = [0,0,0,0,0]     #one state, 5 actions
 eTrace = [0,0,0,0,0]     #one state, 5 actions    how long ago did I do that action and state determines how much of
-                                                          #total reward
-y = np.array(Qtable)
-
-
+                                                              #total reward
 
 class Neural_Network(object):
     def __init__(self):
@@ -133,7 +132,7 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <About>
-    <Summary>Cliff walking mission based on Sutton and Barto.</Summary>
+    <Summary>Tyler Major's bot</Summary>
   </About>
   
   <ModSettings>
@@ -150,7 +149,7 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
             <AllowSpawning>false</AllowSpawning>
       </ServerInitialConditions>
     <ServerHandlers>
-      <FlatWorldGenerator generatorString="4;8,3*4,3;13;,biome_5"/>
+      <FlatWorldGenerator forceReset="true" generatorString="4;8,3*4,3;13;,biome_5"/>
       <DrawingDecorator>
         <!-- coordinates for cuboid are inclusive -->
          <DrawCuboid type="air" x1="-24" x2="24" y1="4" y2="40" z1="-20" z2="20" />
@@ -223,7 +222,7 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                <DrawBlock type="spruce_fence" x="-9" y="4" z="12" />
                <DrawBlock type="spruce_fence" x="-10" y="4" z="12" />
                <DrawBlock type="spruce_fence" x="-11" y="4" z="12" />
-                <DrawBlock type="spruce_fence" x="-12" y="4" z="12" />
+               <DrawBlock type="spruce_fence" x="-12" y="4" z="12" />
                <DrawBlock type="spruce_fence" x="-13" y="4" z="12" />
                <DrawBlock type="spruce_fence" x="-14" y="4" z="12" />
                <DrawBlock type="spruce_fence" x="-15" y="4" z="12" />
@@ -245,7 +244,7 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
         <DrawBlock   x="-8"   y="3"  z="6" type="lapis_block" />                           <!-- bottom left of square -->
                      
       </DrawingDecorator>
-      <ServerQuitFromTimeUp timeLimitMs="1000000"/>
+      <ServerQuitFromTimeUp timeLimitMs="300000"/>
       <ServerQuitWhenAnyAgentFinishes/>
     </ServerHandlers>
   </ServerSection>
@@ -279,21 +278,16 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
             <command>strafe</command>
           </ModifierList>
       </DiscreteMovementCommands>
-      <RewardForTouchingBlockType>
-         <Block reward="-1.0" type="grass" behaviour="oncePerBlock"/> 
-         <Block reward="100.0" type="lapis_block" behaviour="oncePerBlock"/>  
-      </RewardForTouchingBlockType>
-      <RewardForSendingCommand reward="-1"/>
-      <AgentQuitFromTouchingBlockType>
-      <!--      <Block type="lava" /> -->
-          <Block type="lava" />
-      </AgentQuitFromTouchingBlockType>
     </AgentHandlers>
   </AgentSection>
 
 </Mission>'''
 
 # Create default Malmo objects:
+
+
+NN = Neural_Network() #Remember only want to do this once...make sure this is outside loop to save weights
+
 
 agent_host = MalmoPython.AgentHost()
 try:
@@ -309,221 +303,221 @@ if agent_host.receivedArgument("help"):
 my_mission = MalmoPython.MissionSpec(missionXML, True)
 my_mission_record = MalmoPython.MissionRecordSpec()
 
-# Attempt to start a mission:
-max_retries = 3
-for retry in range(max_retries):
-    try:
-        agent_host.startMission( my_mission, my_mission_record )
-        break
-    except RuntimeError as e:
-        if retry == max_retries - 1:
-            print("Error starting mission:",e)
-            exit(1)
-        else:
-            time.sleep(2)
-
-# Loop until mission starts:
-print("Waiting for the mission to start ", end=' ')
-world_state = agent_host.getWorldState()
-while not world_state.has_mission_begun:
-    print(".", end="")
-    time.sleep(0.1)
-    world_state = agent_host.getWorldState()
-    for error in world_state.errors:
-        print("Error:",error.text)
-
-print()
-print("Mission running ", end=' ')
-
-
-
-agent_host.sendCommand("pitch 0") #Start looking downward slowly
-time.sleep(1)                        #Wait a second until we are looking in roughly the right direction
-
-#agent_host.sendCommand("move .1")     #And start running...
-
-#botsActions = ["moveeast 1", "movesouth 1", "movewest 1", "movenorth 1", "use 1"]
-#randomAction = random.choice(botsActions)
-#agent_host.sendCommand((randomAction))
-
-jumping = False
-NN = Neural_Network() #Remember only want to do this once...make sure this is outside loop to save weights
-
-
-
-
-
 
 def getAction():
-    reward = 0
-    if largestValue == o[0]:
-        action = "movenorth 1"
-        reward = -1
-        print(reward, " for moving north")
-        time.sleep(.1)
-        return action,reward
-    elif largestValue == o[1]:
-        action = "moveeast 1"
-        reward = -1
-        print(reward, " for moving east")
-        time.sleep(.1)
-        return action,reward
-    elif largestValue == o[2]:
-        action = "movesouth 1"
-        reward = -1 
-        print(reward, " for moving south")
-        time.sleep(.1)
-        return action,reward
-    elif largestValue == o[3]:
-        action = "movewest 1"
-        reward = -1
-        print(reward, " for moving west")
-        time.sleep(.1)
-        return action,reward
-    elif largestValue == o[4]:
-        if (botsEyes == ("lapis_block")):
-            action = "use 1" 
-            reward = 100
-            print(reward, " for placing on Lapis")
+        print(largestValue,o[0])
+        reward = 0
+        if o[0][0]+0.00001 > largestValue > o[0][0]-0.00001:     #decimals used for rounding
+            action = "movenorth 1"
+            reward = -1
+            print(reward, " for moving north")
+            time.sleep(.1)
             return action,reward
-    
+        elif o[0][1]+0.00001 > largestValue > o[0][1]-0.00001:
+            action = "moveeast 1"
+            reward = -1
+            print(reward, " for moving east")
+            time.sleep(.1)
+            return action,reward
+        elif o[0][2]+0.00001 > largestValue > o[0][2]-0.00001:
+            action = "movesouth 1"
+            reward = -1 
+            print(reward, " for moving south")
+            time.sleep(.1)
+            return action,reward
+        elif o[0][3]+0.00001 > largestValue > o[0][3]-0.00001:
+            action = "movewest 1"
+            reward = -1
+            print(reward, " for moving west")
+            time.sleep(.1)
+            return action,reward
+        elif o[0][4]+0.00001 > largestValue > o[0][4]-0.00001:
+            if (botsEyes == ("lapis_block")):
+                action = "use 1" 
+                reward = 1
+                print(reward, " for placing on Lapis")
+                return action,reward
+            else :
+                action = "use 1" 
+                reward = -1
+                print(reward, " for not placing on Lapis")
+                return action,reward
 
-
-
-#NN = Neural_Network() #Remember only want to do this once
-# Loop until mission ends:
-
-#loop through mission
+                                                              
+                                                              
+def currentValues():
+    Qtable = [0,0,0,0,0]     #one state, 5 actions
+    eTrace = [0,0,0,0,0]     #one state, 5 actions    how long ago did I do that action and state determines how much of
+                                                              #total reward
+    return Qtable,eTrace
+                                                              
+#loops through mission 100 times
 for i in range(100):
-    while world_state.is_mission_running:   #may have to restart mission. look into it
+    
+    
+    newQ,newT = currentValues()  
+    print(newQ)
+    print(newT)
+                                       
+    # Attempt to start a mission:
+    max_retries = 3
+    for retry in range(max_retries):
+        try:
+            agent_host.startMission( my_mission, my_mission_record )
+            break
+        except RuntimeError as e:
+            if retry == max_retries - 1:
+                print("Error starting mission:",e)
+                exit(1)
+            else:
+                time.sleep(2)
+    
+    # Loop until mission starts:
+    print("Waiting for the mission to start ", end=' ')
+    world_state = agent_host.getWorldState()
+    while not world_state.has_mission_begun:
         print(".", end="")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
         for error in world_state.errors:
             print("Error:",error.text)
-        if world_state.number_of_observations_since_last_state > 0:
-            msg = world_state.observations[-1].text
-            observations = json.loads(msg).get("LineOfSight")
-            #print(observations)
-            # 1. Determine block type
-            #2. Make a switch case based on block type that determines to set input nodes.
-            #    for example if block type is 'grass' then grass node is 1, and all other nodes 0.
-            # 3. Run forward propagation.
-            # 4. Look at output nodes figure out node with highest value
-            # 5. execute action based on output nodes
-            #botsEyes = observations.get("LineOfSight")
-            #print (botsEyes)
-            botsEyes = observations.get("type")
     
-            print('\n',botsEyes)
-            if botsEyes == ("lapis_block"):
-                inputValues = [1, 0, 0, 0]
-                lapisNode = 1
-                grassNode = 0
-                fenceNode = 0
-                carpetNode = 0
-            elif botsEyes == ("grass"):
-                inputValues = [0, 1, 0, 0]
-                lapisNode = 0
-                grassNode = 1
-                fenceNode = 0
-                carpetNode = 0
-            elif botsEyes == ("spruce_fence"):
-                inputValues = [0, 0, 1, 0]
-                lapisNode = 0
-                grassNode = 0
-                fenceNode = 1
-                carpetNode = 0
-            elif botsEyes == ("carpet"):
-                inputValues = [0, 0, 0, 1]
-                lapisNode = 0
-                grassNode = 0
-                fenceNode = 0
-                carpetNode = 1
-            else:
-                inputValues = [0, 0, 0, 0]
-                lapisNode = 0
-                grassNode = 0
-                fenceNode = 0 
-                carpetNode = 0
-                
-                
-            X = np.array((inputValues))
-            
-            #print ("Actual Output: \n" + str(y))
-            #print ("Predicted Output: \n" + str(NN.forward(X)))
-            #print ("Loss: \n" + str(np.mean(np.square(y - NN.forward(X))))) # mean sum squared loss
-            o = NN.forward(X)
-            
-                   
-            
-            print ("Actual Output: \n" + str(o))
-            largestValue = max((o))
-            print("Highest Value:" , largestValue)
-            
-            myaction,myreward = getAction()
-            agent_host.sendCommand(myaction)   #send bot actions from getAction method
-            print("Action Chosen is: ",myaction)           
+    print()
+    print("Mission running ", end=' ')
     
-            print("Current Reward: ", myreward)
-            
-            y = 1.0
-            lamd = .5
-            learningRate = .5
-            
-            #Choose action from a1 derived from s using policy from Q'   
-            
-            sigma = myreward
-            
-                #eTrace = eTrace + 1
-            if myaction == "movenorth 1":  #move north
-                eTrace[0] += 1
-            elif myaction == "moveeast 1": #east
-                eTrace[1] += 1
-            elif myaction == "movesouth 1":  #south
-                eTrace[2] += 1
-            elif myaction == "movewest 1":  #west
-                eTrace[3] += 1
-            elif myaction == "place 1":  #place
-                eTrace[4] += 1
-            
-            #For all s,a:
-            #Update Qtable
-            #Update eTrace 
+    
+    
+    agent_host.sendCommand("pitch 0") #Start looking downward slowly
+    time.sleep(1)                        #Wait a second until we are looking in roughly the right direction
+    
+
+    
+    while world_state.is_mission_running:   #may have to restart mission. look into it
+            print(".", end="")
+            time.sleep(0.1)
+            world_state = agent_host.getWorldState()
+            for error in world_state.errors:
+                print("Error:",error.text)
+            if world_state.number_of_observations_since_last_state > 0:
+                msg = world_state.observations[-1].text
+                observations = json.loads(msg).get("LineOfSight")
+                #print(observations)
+                # 1. Determine block type
+                #2. Make a switch case based on block type that determines to set input nodes.
+                #    for example if block type is 'grass' then grass node is 1, and all other nodes 0.
+                # 3. Run forward propagation.
+                # 4. Look at output nodes figure out node with highest value
+                # 5. execute action based on output nodes
+                #botsEyes = observations.get("LineOfSight")
+                #print (botsEyes)
+                botsEyes = observations.get("type")
+        
+     #           print('The bot is looking at: ',botsEyes)
+                if botsEyes == ("lapis_block"):
+                    inputValues = [1, 0, 0, 0]
+                    lapisNode = 1
+                    grassNode = 0
+                    fenceNode = 0
+                    carpetNode = 0
+                elif botsEyes == ("grass"):
+                    inputValues = [0, 1, 0, 0]
+                    lapisNode = 0
+                    grassNode = 1
+                    fenceNode = 0
+                    carpetNode = 0
+                elif botsEyes == ("spruce_fence"):
+                    inputValues = [0, 0, 1, 0]
+                    lapisNode = 0
+                    grassNode = 0
+                    fenceNode = 1
+                    carpetNode = 0
+                elif botsEyes == ("carpet"):
+                    inputValues = [0, 0, 0, 1]
+                    lapisNode = 0
+                    grassNode = 0
+                    fenceNode = 0
+                    carpetNode = 1
+                else:
+                    inputValues = [0, 0, 0, 0]
+                    lapisNode = 0
+                    grassNode = 0
+                    fenceNode = 0 
+                    carpetNode = 0
                     
-            for i in range(5):
-                Qtable[i] = Qtable[i] + learningRate * myreward * eTrace[i]
-                eTrace[i] = y * lamd * eTrace[i]
                 
-            #if 10 actions
-              #then backproop once based on Qtable
-                #np.arrays(Qtable)
-                # 0 = backprop
-                #y = np.array(Qtable)
-            
-                b = NN.backward(X, y, o)
-  
-            print ("Backprop: \n" + str(b))
+                X = np.array((inputValues,), dtype = float)         
+                #print ("Actual Output: \n" + str(y))
+                #print ("Predicted Output: \n" + str(NN.forward(X)))
+                #print ("Loss: \n" + str(np.mean(np.square(y - NN.forward(X))))) # mean sum squared loss
+                o = NN.forward(X)
                 
-            
-#result = NN.train(X,y)        
-print("QTable:", Qtable)
-print("eTrace:", eTrace)
-#print("LOL:",result)
+                       
+                
+     #           print ("Actual Output: \n" + str(o))
+                largestValue = np.amax(o)
+                print("Highest Value:" , largestValue)
+                
+                myaction,myreward = getAction()
+                agent_host.sendCommand(myaction)   #send bot actions from getAction method
+                print("Action Chosen is:",myaction) 
+    
+                '''
+                useOne = 0
+                if myaction == " use 1":
+                    useOne += 1
+                    print(useOne)
+                    if useOne == 2:
+                        agent_host.sendCommand("quit")
+                        '''
+                              
         
-        
-        
-                        
-time.sleep(.1)  
-time.sleep(0.5) # (let the Mod reset)
-
-          
-             
-print()
-print("Mission ended")
-# Mission has ended.
-#print ("Actual Output: \n" + str(y))
-
-
-        
-
+    #            print("Current Reward: ", myreward)
+                
+                y = 1.0
+                lamd = .5
+                learningRate = .5
+                
+                #Choose action from a1 derived from s using policy from Q'   
+                
+                sigma = myreward
+                
+                    #eTrace = eTrace + 1
+                if myaction == "movenorth 1":  #move north
+                    eTrace[0] += 1
+                elif myaction == "moveeast 1": #east
+                    eTrace[1] += 1
+                elif myaction == "movesouth 1":  #south
+                    eTrace[2] += 1
+                elif myaction == "movewest 1":  #west
+                    eTrace[3] += 1
+                elif myaction == "place 1":  #place
+                    eTrace[4] += 1
+                
+                #For all s,a:
+                #Update Qtable
+                #Update eTrace 
+                print("Before: ", Qtable, eTrace)        
+                for i in range(5):
+                    Qtable[i] = Qtable[i] + learningRate * myreward * eTrace[i]
+                    eTrace[i] = y * lamd * eTrace[i]
+                print("After: ", Qtable,eTrace)
+                
+              #make new array
+              #scale qtable
+              
+              
+              
+                y= np.array((Qtable,), dtype = float)  #use new array here
+                    #print("After: ", Qtable,eTrace)
+                b = NN.train(X, y)
+                    
+      
+     #           print ("Backprop: \n" + str(b))
+                               
+                            
+    time.sleep(.1)  
+    time.sleep(0.5) # (let the Mod reset)
+                 
+    print()
+    print("Mission ended")
+    agent_host.sendCommand("quit")
